@@ -28,6 +28,7 @@ builder.Services.AddScoped<PricingCalculator>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IExtraServiceService, ExtraServiceService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 // Реєстрація AutoMapper
 builder.Services.AddAutoMapper(config => { }, AppDomain.CurrentDomain.GetAssemblies());
