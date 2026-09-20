@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\ConferenceRooms.BLL\ConferenceRooms.BLL.csproj" />
       <ProjectReference Include="..\ConferenceRooms.DAL\ConferenceRooms.DAL.csproj" />
     </ItemGroup>
 

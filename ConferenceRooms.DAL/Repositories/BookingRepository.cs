@@ -29,4 +29,10 @@ public class BookingRepository : Repository<Booking>, IBookingRepository
             .ThenInclude(bs => bs.Service)
             .ToListAsync();
     }
+    
+    // Реалізація додавання проміжного зв'язку
+    public async Task AddBookingServiceAsync(BookingService bookingService)
+    {
+        await Context.BookingServices.AddAsync(bookingService);
+    }
 }

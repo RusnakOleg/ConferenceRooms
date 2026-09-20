@@ -1,3 +1,6 @@
+using ConferenceRooms.BLL.Helpers;
+using ConferenceRooms.BLL.Services;
+using ConferenceRooms.BLL.Services.Interfaces;
 using ConferenceRooms.DAL.Context;
 using ConferenceRooms.DAL.Repositories;
 using ConferenceRooms.DAL.Repositories.Interfaces;
@@ -16,6 +19,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Реєстрація Unit Of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Реєстрація сервісів
+builder.Services.AddScoped<PricingCalculator>();
+builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IExtraServiceService, ExtraServiceService>();
 
 var app = builder.Build();
 

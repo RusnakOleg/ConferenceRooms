@@ -8,4 +8,5 @@ public interface IBookingRepository : IRepository<Booking>
 {
     Task<bool> IsRoomBookedAsync(int roomId, DateTime startTime, DateTime endTime);
     Task<IEnumerable<Booking>> GetAllWithDetailsAsync();
+    Task AddBookingServiceAsync(BookingService bookingService);
 }
