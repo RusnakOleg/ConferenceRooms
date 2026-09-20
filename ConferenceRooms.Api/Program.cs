@@ -26,6 +26,9 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IExtraServiceService, ExtraServiceService>();
 
+// Реєстрація AutoMapper
+builder.Services.AddAutoMapper(config => { }, AppDomain.CurrentDomain.GetAssemblies());
+
 var app = builder.Build();
 
 // Автоматичне створення бази даних та заповнення початкових даних
