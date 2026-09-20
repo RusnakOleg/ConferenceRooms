@@ -34,30 +34,21 @@ public class BookingsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateBooking([FromBody] CreateBookingDto dto)
     {
-        try
+        var endTime = dto.StartTime.AddHours(dto.DurationHours);
+
+        var booking = await _bookingService.CreateBookingAsync(
+            dto.RoomId, 
+            dto.StartTime, 
+            endTime, 
+            dto.ServiceIds ?? new List<int>()
+        );
+
+        var responseDto = _mapper.Map<BookingResponseDto>(booking);
+
+        return Ok(new
         {
-            // Обчислюємо час закінчення на основі тривалості в годинах
-            var endTime = dto.StartTime.AddHours(dto.DurationHours);
-
-            var booking = await _bookingService.CreateBookingAsync(
-                dto.RoomId, 
-                dto.StartTime, 
-                endTime, 
-                dto.ServiceIds ?? new List<int>()
-            );
-
-            // Мапимо результат у BookingResponseDto через AutoMapper
-            var responseDto = _mapper.Map<BookingResponseDto>(booking);
-
-            return Ok(new
-            {
-                Message = "Бронювання успішно створено!",
-                Data = responseDto
-            });
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is KeyNotFoundException)
-        {
-            return BadRequest(new { Error = ex.Message });
-        }
+            Message = "Бронювання успішно створено!",
+            Data = responseDto
+        });
     }
 }

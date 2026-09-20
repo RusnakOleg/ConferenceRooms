@@ -49,7 +49,7 @@ public class RoomsController : ControllerBase
         var room = await _unitOfWork.Rooms.GetRoomWithServicesAsync(id);
         if (room == null)
         {
-            return NotFound(new { Error = "Конференц-зал із таким ID не знайдено." });
+            throw new KeyNotFoundException("Конференц-зал із таким ID не знайдено.");
         }
 
         // Оновлюємо базові поля, якщо вони передані
@@ -60,10 +60,6 @@ public class RoomsController : ControllerBase
         // Якщо передано новий список послуг, оновлюємо зв'язки
         if (dto.ServiceIds != null)
         {
-            // Знаходимо самі сутності послуг за їхніми ID
-            var services = await _unitOfWork.Services.GetAllAsync(); // або спеціальний метод GetByIdsAsync
-            var selectedServices = services.Where(s => dto.ServiceIds.Contains(s.Id)).ToList();
-
             // Очищаємо старі і додаємо нові послуги до залу
             room.RoomServices.Clear();
             foreach (var serviceId in dto.ServiceIds)
@@ -83,41 +79,34 @@ public class RoomsController : ControllerBase
         return Ok(new { Message = "Інформацію про зал та послуги успішно оновлено." });
     }
     
-        // Видалення конференц-залу.
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRoom(int id)
+    // Видалення конференц-залу.
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteRoom(int id)
+    {
+        var room = await _unitOfWork.Rooms.GetByIdAsync(id);
+        if (room == null)
         {
-            var room = await _unitOfWork.Rooms.GetByIdAsync(id);
-            if (room == null)
-            {
-                return NotFound(new { Error = "Конференц-зал із таким ID не знайдено." });
-            }
-
-            _unitOfWork.Rooms.Delete(room);
-            await _unitOfWork.CompleteAsync();
-
-            return Ok(new { Message = "Конференц-зал успішно видалено." });
+            throw new KeyNotFoundException("Конференц-зал із таким ID не знайдено.");
         }
-        
-        // Пошук доступних залів за датою, часом та місткістю.
-        [HttpGet("available")]
-        public async Task<IActionResult> GetAvailableRooms(
-            [FromQuery] DateTime startTime,
-            [FromQuery] DateTime endTime,
-            [FromQuery] int requiredCapacity)
-        {
-            try
-            {
-                var availableRooms = await _roomService.GetAvailableRoomsAsync(startTime, endTime, requiredCapacity);
 
-                // Мапимо список сутностей у список RoomResponseDto через AutoMapper
-                var responseDtos = _mapper.Map<IEnumerable<RoomResponseDto>>(availableRooms);
+        _unitOfWork.Rooms.Delete(room);
+        await _unitOfWork.CompleteAsync();
 
-                return Ok(responseDtos);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { Error = ex.Message });
-            }
-        }
+        return Ok(new { Message = "Конференц-зал успішно видалено." });
     }
+    
+    // Пошук доступних залів за датою, часом та місткістю.
+    [HttpGet("available")]
+    public async Task<IActionResult> GetAvailableRooms(
+        [FromQuery] DateTime startTime,
+        [FromQuery] DateTime endTime,
+        [FromQuery] int requiredCapacity)
+    {
+        var availableRooms = await _roomService.GetAvailableRoomsAsync(startTime, endTime, requiredCapacity);
+
+        // Мапимо список сутностей у список RoomResponseDto через AutoMapper
+        var responseDtos = _mapper.Map<IEnumerable<RoomResponseDto>>(availableRooms);
+
+        return Ok(responseDtos);
+    }
+}

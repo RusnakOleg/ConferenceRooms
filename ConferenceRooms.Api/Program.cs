@@ -1,9 +1,12 @@
+using ConferenceRooms.Api.Middleware;
 using ConferenceRooms.BLL.Helpers;
 using ConferenceRooms.BLL.Services;
 using ConferenceRooms.BLL.Services.Interfaces;
 using ConferenceRooms.DAL.Context;
 using ConferenceRooms.DAL.Repositories;
 using ConferenceRooms.DAL.Repositories.Interfaces;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +32,10 @@ builder.Services.AddScoped<IExtraServiceService, ExtraServiceService>();
 // Реєстрація AutoMapper
 builder.Services.AddAutoMapper(config => { }, AppDomain.CurrentDomain.GetAssemblies());
 
+// Реєстрація валідаторів та увімкнення автоматичної валідації для API
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddFluentValidationAutoValidation();
+
 var app = builder.Build();
 
 // Автоматичне створення бази даних та заповнення початкових даних
@@ -49,6 +56,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Налаштування конвеєра HTTP-запитів
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
